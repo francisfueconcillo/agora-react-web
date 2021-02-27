@@ -1,5 +1,6 @@
 import React from 'react'
 import * as Cookies from 'js-cookie'
+import AgoraRTC from 'agora-rtc-sdk'
 
 import '../../assets/fonts/css/icons.css'
 import Validator from '../../utils/Validator'
@@ -60,7 +61,7 @@ class Index extends React.Component {
           <section className="login-wrapper">
             <div className="login-header">
               <img src={require('../../assets/images/ag-logo.png')} alt="" />
-              <p className="login-title">AgoraWeb v2.1</p>
+              <p className="login-title">Agora-React for Web</p>
               <p className="login-subtitle">Powering Real-Time Communications</p>
             </div>
             <div className="login-body">
@@ -135,8 +136,7 @@ class Index extends React.Component {
             <span>Powered By Agora</span>
           </a>
           <div>
-            <span>Interested in Agora video call SDK? Contact </span>
-            <span className="ag-contact">sales@agora.io</span>
+            <span>ReactJS Version: {React.version} | Agora SDK version: {AgoraRTC.VERSION} | System Compatible: { AgoraRTC.checkSystemRequirements().toString() }</span>
           </div>
         </div>
       </div>
