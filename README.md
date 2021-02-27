@@ -2,8 +2,9 @@
 
 This tutorial describes how to add video chat to your ReactJS applications using the AgoraRTC SDK.
 
-With this sample app, you can:
+With this sample app:
 
+- [Applied Best Practices](https://docs.agora.io/en/Video/multi_user_video_web?platform=Web)
 - [Join a meeting room with up to 7 people](#add-mount-methods-for-the-agoracanvas-class)
 - [Leave the meeting room](#add-custom-stream-methods-for-the-agoracanvas-class)
 - [Disable/Enable audio](#add-other-custom-methods-for-the-agoracanvas-class)
@@ -13,8 +14,8 @@ With this sample app, you can:
 
 ## Prerequisites
 
-- Node.js 6.9.1+
-
+- Agora SDK Web v3.4.0
+- React ^16.8.0
 
 ## Quick Start
 
@@ -29,20 +30,18 @@ To build and run the sample application, you must obtain an app ID:
 
 1. Create a developer account at [agora.io](https://dashboard.agora.io/signin/). Once you finish the sign-up process, you are redirected to the dashboard.
 2. Navigate in the dashboard tree on the left to **Projects** > **Project List**.
-3. Copy the app ID that you obtained from the dashboard into a text file. You will use this when you launch the app.
+3. Copy the App ID and the App Certicifate that you obtained from the dashboard into a text file. You will use this when you launch the app.
 
 
 ### Update and Run the Sample Application 
 
 1. Edit the [`src/agora.config.js`](src/agora.config.js) file. In the `AGORA_APP_ID` declaration, update `Your App ID` with your app ID.
+2. In the `AGORA_APP_CERT` declaration, update `Your App Certificate` with your app ID.
 
 ```JavaScript
 export const AGORA_APP_ID = 'Your App ID'
+export const AGORA_APP_CERT = 'Your App Certificate'
 ```
-
-2. Download the [Agora Web Video SDK](https://www.agora.io/en/download/). Unzip the downloaded SDK package and copy the `AgoraRTC-*.js` file into the sample application's `/src/library/` folder. Rename the file to `AgoraRTC.js`.
-
-	**Note:** CDN can now be used to retrieve the latest SDK. You do not have to re-download SDK updates.
 		
 3. Open the terminal and navigate to your project folder.
 
