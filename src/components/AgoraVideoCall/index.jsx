@@ -2,6 +2,7 @@ import React from 'react'
 import { merge } from 'lodash'
 import AgoraRTC from 'agora-rtc-sdk'
 import { RtcTokenBuilder } from 'agora-access-token'
+import { HIGH_TO_LOW_MAPPING } from '../../utils/Settings'
 
 import './canvas.css'
 import '../../assets/fonts/css/icons.css'
@@ -15,7 +16,6 @@ const tile_canvas = {
   '6': ['span 3/span 4/13/7', 'span 3/span 4/13/11', 'span 3/span 4/13/15', 'span 3/span 4/13/19', 'span 3/span 4/13/23', 'span 9/span 16/10/21'],
   '7': ['span 3/span 4/13/5', 'span 3/span 4/13/9', 'span 3/span 4/13/13', 'span 3/span 4/13/17', 'span 3/span 4/13/21', 'span 3/span 4/13/25', 'span 9/span 16/10/21'],
 }
-
 
 /**
  * @prop appId uid
@@ -42,15 +42,19 @@ class AgoraCanvas extends React.Component {
         $.appCert,
         $.channel,
         $.uid,
-        '1', // 1- PUBLISHER, 2_SUBSCRIBER
+        1, // 1- PUBLISHER, 2_SUBSCRIBER https://docs.agora.io/en/Voice/token_server
         $.tokenExpiry
     )
+  }
+
+  getLowVideoProfile(highVideoProfile) {
+    return HIGH_TO_LOW_MAPPING[highVideoProfile.toUpperCase()] || '120P_1';
   }
 
   componentWillMount() {
     let $ = this.props
     // init AgoraRTC local client
-    this.client = AgoraRTC.createClient({ mode: $.baseMode, codec: $.transcode })
+    this.client = AgoraRTC.createClient({ mode: $.baseMode, codc: $.transcode })
     this.client.init($.appId, () => {
       console.log("AgoraRTC client initialized")
       this.subscribeStreamEvents()
@@ -63,12 +67,26 @@ class AgoraCanvas extends React.Component {
         this.localStream = this.streamInit(uid, $.attendeeMode, $.videoProfile)
         this.localStream.init(() => {
           if ($.attendeeMode !== 'audience') {
+            this.client.setClientRole('host', () => console.log("Client is host."));
             this.addStream(this.localStream, true)
             this.client.publish(this.localStream, err => {
               console.log("Publish local stream error: " + err);
             })
+          } else {
+            // BEST PRACTICE #1: https://docs.agora.io/en/Video/multi_user_video_web?platform=Web
+            this.client.enableDualStream(() => console.log("Dual-stream mode enabled")); 
+
+            // BEST PRACTICE #2: https://docs.agora.io/en/Video/multi_user_video_web?platform=Web
+            this.client.setClientRole('audience', () => console.log("Client is audience."));
+            this.client.setRemoteVideoStreamType(this.localStream, 1);
+            
+            // BEST PRACTICE #3: https://docs.agora.io/en/Video/multi_user_video_web?platform=Web
+            this.localStream.setLowStreamParameter(this.getLowVideoProfile($.videoProfile));
+            console.log("HIGH_TO_LOW_MAPPING:::HIGH_TO_LOW_MAPPING", this.getLowVideoProfile($.videoProfile));            
           }
-          this.setState({ readyState: true })
+
+            
+          this.setState({ readyState: true });
         },
           err => {
             console.log("getUserMedia failed", err)
@@ -127,8 +145,9 @@ class AgoraCanvas extends React.Component {
                     z-index:1;width:calc(100% - 20px);height:calc(100% - 20px)`)
         }
 
-        item.player.resize && item.player.resize()
-
+        if (item && item.player && item.player.resize) {
+          item.player.resize()
+        }
 
       })
     }
@@ -200,6 +219,8 @@ class AgoraCanvas extends React.Component {
       console.log("New stream added: " + stream.getId())
       console.log('At ' + new Date().toLocaleTimeString())
       console.log("Subscribe ", stream)
+
+      // BEST PRACTICE #4 https://docs.agora.io/en/Video/multi_user_video_web?platform=Web
       rt.client.subscribe(stream, function (err) {
         console.log("Subscribe stream failed", err)
       })
