@@ -60,15 +60,7 @@ class AgoraCanvas extends React.Component {
         
         // create local stream
         // It is not recommended to setState in function addStream
-
-        this.localStream = AgoraRTC.createStream({
-          streamID: uid,
-          audio: true,
-          video: true,
-          mirror: true,
-          optimizationMode: 'detail',
-        });
-
+        this.localStream = this.streamInit(uid, $.attendeeMode, $.videoProfile)
         this.localStream.init(() => {
           if ($.attendeeMode !== 'audience') {
             this.addStream(this.localStream, true)
