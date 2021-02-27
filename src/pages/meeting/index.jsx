@@ -3,21 +3,24 @@ import * as Cookies from "js-cookie";
 
 import "./meeting.css";
 import AgoraVideoCall from "../../components/AgoraVideoCall";
-import { AGORA_APP_ID } from "../../agora.config";
+import { AGORA_APP_ID, AGORA_APP_CERT, AGORA_TOKEN_EXPIRY } from "../../agora.config";
 
 class Meeting extends React.Component {
   constructor(props) {
     super(props);
     this.videoProfile = Cookies.get("videoProfile").split(",")[0] || "480p_4";
     this.channel = Cookies.get("channel") || "test";
-    this.transcode = Cookies.get("transcode") || "interop";
+    this.transcode = Cookies.get("transcode") || "vp9";
     this.attendeeMode = Cookies.get("attendeeMode") || "video";
-    this.baseMode = Cookies.get("baseMode") || "avc";
+    this.baseMode = Cookies.get("baseMode") || "rtc";
     this.appId = AGORA_APP_ID;
+    this.appCert = AGORA_APP_CERT;
+    this.tokenExpiry = (Math.floor(Date.now() / 1000)) + AGORA_TOKEN_EXPIRY;
+
     if (!this.appId) {
       return alert("Get App ID first!");
     }
-    this.uid = undefined;
+    this.uid = Math.floor((Math.random() * 1234567890) + 1);
   }
 
   render() {
@@ -45,6 +48,8 @@ class Meeting extends React.Component {
               attendeeMode={this.attendeeMode}
               baseMode={this.baseMode}
               appId={this.appId}
+              appCert={this.appCert}
+              tokenExpiry={this.tokenExpiry}
               uid={this.uid}
             />
           </div>

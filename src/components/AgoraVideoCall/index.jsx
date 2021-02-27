@@ -1,6 +1,7 @@
 import React from 'react'
 import { merge } from 'lodash'
 import AgoraRTC from 'agora-rtc-sdk'
+import { RtcTokenBuilder } from 'agora-access-token'
 
 import './canvas.css'
 import '../../assets/fonts/css/icons.css'
@@ -34,19 +35,40 @@ class AgoraCanvas extends React.Component {
     }
   }
 
+  generateToken() {
+    let $ = this.props
+    return RtcTokenBuilder.buildTokenWithUid(
+        $.appId,
+        $.appCert,
+        $.channel,
+        $.uid,
+        '1', // 1- PUBLISHER, 2_SUBSCRIBER
+        $.tokenExpiry
+    )
+  }
+
   componentWillMount() {
     let $ = this.props
     // init AgoraRTC local client
-    this.client = AgoraRTC.createClient({ mode: $.transcode })
+    this.client = AgoraRTC.createClient({ mode: $.baseMode, codec: $.transcode })
     this.client.init($.appId, () => {
       console.log("AgoraRTC client initialized")
       this.subscribeStreamEvents()
-      this.client.join($.appId, $.channel, $.uid, (uid) => {
+      this.client.join(this.generateToken(), $.channel, $.uid, $.channel, (uid) => {
         console.log("User " + uid + " join channel successfully")
         console.log('At ' + new Date().toLocaleTimeString())
+        
         // create local stream
         // It is not recommended to setState in function addStream
-        this.localStream = this.streamInit(uid, $.attendeeMode, $.videoProfile)
+
+        this.localStream = AgoraRTC.createStream({
+          streamID: uid,
+          audio: true,
+          video: true,
+          mirror: true,
+          optimizationMode: 'detail',
+        });
+
         this.localStream.init(() => {
           if ($.attendeeMode !== 'audience') {
             this.addStream(this.localStream, true)

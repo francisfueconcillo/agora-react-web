@@ -13,8 +13,8 @@ class Index extends React.Component {
     this.state = {
       joinBtn: false,
       channel: '',
-      baseMode: 'avc',
-      transcode: 'interop',
+      baseMode: 'rtc',
+      transcode: 'vp9',
       attendeeMode: 'video',
       videoProfile: '480p_4',
 
@@ -238,12 +238,12 @@ class BaseOptions extends React.Component {
     this._options = [
       {
         label: 'Agora Video Call',
-        value: 'avc',
+        value: 'rtc',
         content: 'One to one and group calls'
       },
       {
         label: 'Agora Live',
-        value: 'al',
+        value: 'live',
         content: 'Enabling real-time interactions between the host and the audience'
       }
     ]
@@ -333,16 +333,16 @@ class AdvancedOptions extends React.Component {
             <div className="dropdown-item">
               <div className="control">
                 <label className="radio">
-                  <input value="" type="radio" name="transcode" onChange={this.handleRadio} />
-                  <span>VP8-only</span>
+                  <input value="vp8" type="radio" name="transcode" onChange={this.handleRadio} />
+                  <span>VP8</span>
                 </label>
                 <label className="radio">
-                  <input value="interop" type="radio" defaultChecked onChange={this.handleRadio} name="transcode" />
-                  <span>VP8 &amp; H264</span>
+                  <input value="vp9" type="radio" defaultChecked onChange={this.handleRadio} name="transcode" />
+                  <span>VP9</span>
                 </label>
                 <label className="radio">
-                  <input value="h264_interop" type="radio" onChange={this.handleRadio} name="transcode" />
-                  <span>H264-only</span>
+                  <input value="h264" type="radio" onChange={this.handleRadio} name="transcode" />
+                  <span>H264</span>
                 </label>
               </div>
             </div>
