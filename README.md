@@ -13,6 +13,20 @@ With enhancements on:
 - Agora SDK Web v3.4.0
 - React ^16.8.0
 
+## Running Locally
+- Install dependencies
+```
+npm i
+```
+- Run in development mode
+```
+npm run start
+```
+- Set `AGORA_APP_ID` and `SERVER_API_URL` Backend API URL at `src/agora.config.js`
+```
+export const AGORA_APP_ID = 'change this' // set your app id here
+export const SERVER_API_URL = 'http://localhost:9000'
+```
 ## Token Generations
 - Token Generation is done by a backend API to protect the APP_CERT from being exposed in front-end
 [See generateToken() in Backend API](https://github.com/francisfueconcillo/agora-recorder/blob/master/src/agora.js#L105)
