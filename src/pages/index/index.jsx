@@ -6,6 +6,7 @@ import '../../assets/fonts/css/icons.css'
 import Validator from '../../utils/Validator'
 import { RESOLUTION_ARR } from '../../utils/Settings'
 import './index.css'
+import { generateToken } from '../../components/AgoraVideoCall/api'
 
 
 class Index extends React.Component {
@@ -18,7 +19,7 @@ class Index extends React.Component {
       transcode: 'vp9',
       attendeeMode: 'video',
       videoProfile: '480p_4',
-
+      token: null,
     }
   }
 
@@ -40,16 +41,31 @@ class Index extends React.Component {
     })
   }
 
-  handleJoin = () => {
+  handleJoin = async() => {
     if (!this.state.joinBtn) {
       return
     }
-    console.log(this.state)
+
+    // randomly generated uid if not yet set
+    let uid = Cookies.get("uid")
+
+    if (!uid) {
+      uid = Math.floor((Math.random() * 1234567890) + 1);
+    }
+    
+    await generateToken(this.state.channel, uid, this.attendeeMode === 'audience' ? 'audience':'host')
+      .then((data) => {
+        this.setState({ token: data.token });
+      }
+    );
+
     Cookies.set('channel', this.state.channel)
     Cookies.set('baseMode', this.state.baseMode)
     Cookies.set('transcode', this.state.transcode)
     Cookies.set('attendeeMode', this.state.attendeeMode)
     Cookies.set('videoProfile', this.state.videoProfile)
+    Cookies.set('uid', uid)
+    Cookies.set('token', this.state.token)
     window.location.hash = "meeting"
   }
 

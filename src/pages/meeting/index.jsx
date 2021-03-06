@@ -1,10 +1,12 @@
 import React from "react";
 import * as Cookies from "js-cookie";
+import AgoraRTC from 'agora-rtc-sdk'
 
 import "./meeting.css";
 import AgoraVideoCall from "../../components/AgoraVideoCall";
-import { AGORA_APP_ID, AGORA_APP_CERT, AGORA_TOKEN_EXPIRY } from "../../agora.config";
+import { AGORA_APP_ID  } from "../../agora.config";
 
+import { generateToken } from '../../components/AgoraVideoCall/api';
 class Meeting extends React.Component {
   constructor(props) {
     super(props);
@@ -14,13 +16,12 @@ class Meeting extends React.Component {
     this.attendeeMode = Cookies.get("attendeeMode") || "video";
     this.baseMode = Cookies.get("baseMode") || "rtc";
     this.appId = AGORA_APP_ID;
-    this.appCert = AGORA_APP_CERT;
-    this.tokenExpiry = (Math.floor(Date.now() / 1000)) + AGORA_TOKEN_EXPIRY;
-
+    this.token = Cookies.get("token");
+    this.uid = Cookies.get("uid");
+    
     if (!this.appId) {
       return alert("Get App ID first!");
     }
-    this.uid = Math.floor((Math.random() * 1234567890) + 1);
   }
 
   render() {
@@ -33,10 +34,13 @@ class Meeting extends React.Component {
               src={require("../../assets/images/ag-logo.png")}
               alt=""
             />
-            <span>AgoraWeb v2.1</span>
+            <span>Agora-React</span>
           </div>
           <div className="ag-header-msg">
-            Room:&nbsp;<span id="room-name">{this.channel}</span>
+            UserID:&nbsp;<span id="uid">{this.uid}</span> |
+            Channel:&nbsp;<span id="room-name">{this.channel}</span> | 
+            Type:&nbsp;<span id="attendee-mode">{this.baseMode}</span>
+
           </div>
         </div>
         <div className="ag-main">
@@ -48,8 +52,7 @@ class Meeting extends React.Component {
               attendeeMode={this.attendeeMode}
               baseMode={this.baseMode}
               appId={this.appId}
-              appCert={this.appCert}
-              tokenExpiry={this.tokenExpiry}
+              token={this.token}
               uid={this.uid}
             />
           </div>
@@ -58,7 +61,7 @@ class Meeting extends React.Component {
           <a className="ag-href" href="https://www.agora.io">
             <span>Powered By Agora</span>
           </a>
-          <span>Talk to Support: 400 632 6626</span>
+          <span>ReactJS Version: {React.version} | Agora SDK version: {AgoraRTC.VERSION}</span>
         </div>
       </div>
     );

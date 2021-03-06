@@ -1,8 +1,8 @@
 import React from 'react'
 import { merge } from 'lodash'
 import AgoraRTC from 'agora-rtc-sdk'
-import { RtcTokenBuilder } from 'agora-access-token'
 import { HIGH_TO_LOW_MAPPING } from '../../utils/Settings'
+import { startRecording, stopRecording } from './api';
 
 import './canvas.css'
 import '../../assets/fonts/css/icons.css'
@@ -28,23 +28,15 @@ class AgoraCanvas extends React.Component {
     this.localStream = {}
     this.shareClient = {}
     this.shareStream = {}
+    
     this.state = {
       displayMode: 'pip',
       streamList: [],
-      readyState: false
+      readyState: false,
+      recordState: false,
+      resid: null,
+      sid: null,
     }
-  }
-
-  generateToken() {
-    let $ = this.props
-    return RtcTokenBuilder.buildTokenWithUid(
-        $.appId,
-        $.appCert,
-        $.channel,
-        $.uid,
-        1, // 1- PUBLISHER, 2_SUBSCRIBER https://docs.agora.io/en/Voice/token_server
-        $.tokenExpiry
-    )
   }
 
   getLowVideoProfile(highVideoProfile) {
@@ -58,7 +50,7 @@ class AgoraCanvas extends React.Component {
     this.client.init($.appId, () => {
       console.log("AgoraRTC client initialized")
       this.subscribeStreamEvents()
-      this.client.join(this.generateToken(), $.channel, $.uid, $.channel, (uid) => {
+      this.client.join($.token, $.channel, $.uid, $.channel, (uid) => {
         console.log("User " + uid + " join channel successfully")
         console.log('At ' + new Date().toLocaleTimeString())
         
@@ -239,7 +231,9 @@ class AgoraCanvas extends React.Component {
       console.log(new Date().toLocaleTimeString())
       console.log("Subscribe remote stream successfully: " + stream.getId())
       console.log(evt)
+      rt.setState({ recordReadyState: false });
       rt.addStream(stream)
+      
     })
 
     rt.client.on("stream-removed", function (evt) {
@@ -359,6 +353,29 @@ class AgoraCanvas extends React.Component {
     }
   }
 
+  handleRecord = async() => {
+    let $ = this.props
+    const hasAttendees = this.state.streamList.length > 1;
+    if (!this.state.recordState && hasAttendees) {
+      console.log('recording...');
+      this.setState( { recordState: true });
+      const response = await startRecording($.channel, $.uid, $.baseMode, this.props.token)
+      
+      this.setState({
+        resid: response.data?.resourceId,
+        sid: response.data?.sid
+      });
+      console.log(this.state);
+    } else if(this.state.recordState) {
+
+      console.log('stop recording...');
+      const response = await stopRecording($.channel, $.uid, this.state.resid, this.state.sid);
+      console.log(response);
+    }  else {
+      console.log('Need at least 1 attendee to record');
+    }
+  }
+
   render() {
     const style = {
       display: 'grid',
@@ -405,9 +422,19 @@ class AgoraCanvas extends React.Component {
     const exitBtn = (
       <span
         onClick={this.handleExit}
-        className={this.state.readyState ? 'ag-btn exitBtn' : 'ag-btn exitBtn disabled'}
+        className={this.state.streamList.length ? 'ag-btn exitBtn' : 'ag-btn exitBtn disabled'}
         title="Exit">
         <i className="ag-icon ag-icon-leave"></i>
+      </span>
+    )
+
+    const recordBtn = (
+      <span
+        onClick={this.handleRecord}
+        className='ag-btn'
+        // className={this.state.recordReadyState ? 'ag-btn' : 'ag-btn disabled'}
+        title="Record">
+        <i className="ag-icon ag-icon-camera"></i>
       </span>
     )
 
@@ -418,10 +445,11 @@ class AgoraCanvas extends React.Component {
           {videoControlBtn}
           {audioControlBtn}
           {/* <span className="ag-btn shareScreenBtn" title="Share Screen">
-                        <i className="ag-icon ag-icon-screen-share"></i>
-                    </span> */}
+              <i className="ag-icon ag-icon-screen-share"></i>
+          </span> */}
           {switchDisplayBtn}
           {hideRemoteBtn}
+          {recordBtn}
         </div>
       </div>
     )
