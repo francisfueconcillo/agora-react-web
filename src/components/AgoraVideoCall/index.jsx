@@ -356,7 +356,7 @@ class AgoraCanvas extends React.Component {
   handleRecord = async() => {
     let $ = this.props
     const hasAttendees = this.state.streamList.length > 1;
-    if (!this.state.recordState && hasAttendees) {
+    if (!this.state.recordState) {
       console.log('recording...');
       this.setState( { recordState: true });
       const response = await startRecording($.channel, $.uid, $.baseMode, this.props.token)
