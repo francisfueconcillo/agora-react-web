@@ -369,6 +369,7 @@ class AgoraCanvas extends React.Component {
     } else if(this.state.recordState) {
 
       console.log('stop recording...');
+      this.setState( { recordState: false });
       const response = await stopRecording($.channel, $.uid, this.state.resid, this.state.sid);
       console.log(response);
     }  else {
